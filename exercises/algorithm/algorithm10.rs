@@ -29,7 +29,23 @@ impl Graph for UndirectedGraph {
         &self.adjacency_table
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (from, to, weight) = edge;
+        self.add_node(from);
+        self.add_node(to);
+
+        // Add the edge from `from` to `to`
+        if let Some(neighbors) = self.adjacency_table_mutable().get_mut(from) {
+            if !neighbors.iter().any(|(node, _)| node == to) {
+                neighbors.push((to.to_string(), weight));
+            }
+        }
+
+        // Since it's undirected, add the reverse edge from `to` to `from`
+        if let Some(neighbors) = self.adjacency_table_mutable().get_mut(to) {
+            if !neighbors.iter().any(|(node, _)| node == from) {
+                neighbors.push((from.to_string(), weight));
+            }
+        }
     }
 }
 pub trait Graph {
@@ -37,8 +53,12 @@ pub trait Graph {
     fn adjacency_table_mutable(&mut self) -> &mut HashMap<String, Vec<(String, i32)>>;
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
-        //TODO
-		true
+        if !self.contains(node) {
+            self.adjacency_table_mutable().insert(node.to_string(), Vec::new());
+            true
+        } else {
+            false
+        }
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO

@@ -31,15 +31,60 @@ where
     pub fn len(&self) -> usize {
         self.count
     }
+    pub fn pop(&mut self) -> Option<T> {
+        if self.count == 0 {
+            return None;
+        }
+
+        // Swap the first (smallest/largest) element with the last element
+        self.items.swap(1, self.count);
+
+        // Remove the last element, which is now the min/max element
+        let popped_value = self.items.pop();
+
+        self.count -= 1;
+
+        // Perform the sift-down (heapify down) to maintain the heap property
+        self.sift_down(1);
+
+        popped_value
+    }
+    fn sift_down(&mut self, mut idx: usize) {
+        while self.children_present(idx) {
+            let smallest_child_idx = self.smallest_child_idx(idx);
+
+            if !(self.comparator)(&self.items[idx], &self.items[smallest_child_idx]) {
+                self.items.swap(idx, smallest_child_idx);
+            } else {
+                break;
+            }
+
+            idx = smallest_child_idx;
+        }
+    }
 
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
-    }
+        self.items.push(value);
+        self.count+=1;
+        self.sift_up(self.count);
 
+    }
+    fn sift_up(&mut self, mut idx: usize) {
+        while idx > 1 {
+            let parent_idx = self.parent_idx(idx);
+            // If the new element violates the heap property, swap it with its parent
+            if !(self.comparator)(&self.items[parent_idx], &self.items[idx]) {
+                self.items.swap(parent_idx, idx);
+                idx = parent_idx;
+            } else {
+                break;
+            }
+        }
+    }
     fn parent_idx(&self, idx: usize) -> usize {
         idx / 2
     }
@@ -57,8 +102,20 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+
+        if right <= self.count {
+            // Compare left and right children to find the "smallest" (based on heap type)
+            if (self.comparator)(&self.items[left], &self.items[right]) {
+                left
+            } else {
+                right
+            }
+        } else {
+            left
+        }
+    
     }
 }
 
@@ -84,8 +141,7 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        self.pop()
     }
 }
 

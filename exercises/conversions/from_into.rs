@@ -40,10 +40,34 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
+
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.is_empty(){
+            return Person::default();
+        }
+       let ne:Vec<&str>=s.split(",").collect();
+       if ne.len() != 2 {
+        return Person::default();
+    }
+    
+    let name = ne[0].trim(); // 获取名字部分并去除可能的空白符
+    let age_str = ne[1].trim(); // 获取年龄部分并去除可能的空白符
+    
+    // 4. 如果名字为空，返回默认值
+    if name.is_empty() {
+        return Person::default();
+    }
+       if let Ok(age) = ne[1].parse::<usize>() {
+        Person {
+            name: String::from(ne[0]),
+            age,
+        }
+    } else {
+        // 如果解析年龄失败，返回默认值
+        Person::default()
+    }
     }
 }
 

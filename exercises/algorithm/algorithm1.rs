@@ -2,11 +2,11 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
+
 
 #[derive(Debug)]
 struct Node<T> {
@@ -69,16 +69,48 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
-	}
 }
+impl<T: PartialOrd + Ord + Clone> LinkedList<T> {
+    pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self {
+        let mut merge_list = LinkedList::new();
+        let mut index_a = 0;
+        let mut index_b = 0;
+
+        let mut current_a = list_a.get(index_a);
+        let mut current_b = list_b.get(index_b);
+
+        while current_a.is_some() && current_b.is_some() {
+            let val_a = current_a.unwrap(); // 获取引用 &T
+            let val_b = current_b.unwrap(); // 获取引用 &T
+            if *val_a <= *val_b { // 解引用 &T 并比较
+                merge_list.add(val_a.clone()); // 插入 T 的克隆值
+                index_a += 1;
+                current_a = list_a.get(index_a);
+            } else {
+                merge_list.add(val_b.clone()); // 插入 T 的克隆值
+                index_b += 1;
+                current_b = list_b.get(index_b);
+            }
+        }
+
+        // 将剩余部分添加到 merged_list 中
+        while let Some(val) = current_a {
+            merge_list.add(val.clone());
+            index_a += 1;
+            current_a = list_a.get(index_a);
+        }
+
+        while let Some(val) = current_b {
+            merge_list.add(val.clone());
+            index_b += 1;
+            current_b = list_b.get(index_b);
+        }
+
+        merge_list
+    }
+}
+
+
 
 impl<T> Display for LinkedList<T>
 where
